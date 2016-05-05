@@ -10,26 +10,33 @@
 
 int tam_vetor, elementos_vetor;
 
-typedef struct item {
+typedef struct coluna {
 	int value;
-	struct item *next;
+	struct coluna *prev, *next, *edge;
 
-} Item;
+} Coluna;
+
+typedef struct linha {
+	int value;
+	int degree;
+	struct coluna *edges;
+
+} Linha;
 
 int contar_distintos();
-void inserir_aresta(Item* *v, int a, int b);
-int encontrar_linha(Item* *v, int value);
-int encontrar_coluna(Item* *v, int value);
-void inserir_linha(Item* *v, int value, int posicao);
-Item* inserir_coluna(Item* line, Item *ptr);
-Item* copiar_no(Item* ptr);
+void inserir_aresta(Linha* *v, int a, int b);
+int encontrar_linha(Linha* *v, int value);
+int encontrar_posicao(Linha* *v, int value);
+void inserir_linha(Linha* *v, int value, int posicao);
+Coluna* inserir_coluna(Linha** v, int dest, int src);
+Coluna* criar_coluna(int value);
 
 
 int main(){
 	elementos_vetor = 0;
 	tam_vetor = contar_distintos();
 
-	Item* *vetor_linhas = malloc(sizeof(Item*)*tam_vetor);
+	Linha* *vetor_linhas = malloc(sizeof(Linha)*tam_vetor);
 
 	return 0;
 }
@@ -40,16 +47,22 @@ int contar_distintos(){
 	return distintos;
 }
 
-void inserir_aresta(Item* *v, int a, int b){
+void inserir_aresta(Linha* *v, int a, int b){
 	a = encontrar_linha(v, a);
 	b = encontrar_linha(v, b);
 
-	v[a] = inserir_coluna(v[a], v[b]);
-	v[b] = inserir_coluna(v[b], v[a]);
+	Coluna *ptr_a = inserir_coluna(v, a, b);
+	Coluna *ptr_b = inserir_coluna(v, b, a);
+
+	ptr_a->edge = ptr_b;
+	ptr_b->edge = ptr_a;
+
+	v[a]->degree++;
+	v[b]->degree++;
 }
 
-int encontrar_linha(Item* *v, int value){
-	int posicao = encontrar_coluna(v, value);
+int encontrar_linha(Linha* *v, int value){
+	int posicao = encontrar_posicao(v, value);
 	
 	if(posicao  == -1)
 		inserir_linha(v, value, posicao);
@@ -57,9 +70,9 @@ int encontrar_linha(Item* *v, int value){
 	return posicao;
 }
 
-int encontrar_coluna(Item* *v, int value){
+int encontrar_posicao(Linha* *v, int value){
 	int esq = 0;
-	int dir = tam_vetor-1;
+	int dir = elementos_vetor-1;
 
 	while(esq < dir) {
 		int i = (esq + dir) / 2;
@@ -74,12 +87,13 @@ int encontrar_coluna(Item* *v, int value){
 	return -1;
 }
 
-void inserir_linha(Item* *v, int value, int posicao){
+void inserir_linha(Linha* *v, int value, int posicao){
 	int i;
 
-	Item *node = malloc(sizeof(Item));
+	Linha *node = malloc(sizeof(Linha));
 	node->value = value;
-	node->next = NULL;
+	node->degree = 0;
+	node->edges = NULL;
 	
 	for(i = elementos_vetor; i > posicao; i--)
 		v[i+1] = v[i];
@@ -88,33 +102,39 @@ void inserir_linha(Item* *v, int value, int posicao){
 	elementos_vetor++;	
 }
 
-Item* inserir_coluna(Item *line, Item *ptr){
-	Item *previous, *aux = line;
+Coluna* inserir_coluna(Linha* *v, int dest, int src){
+	Coluna *aux = v[dest]->edges;
 
-	if(aux->next == NULL){
-		aux->next = copiar_no(ptr);
-		return aux;
+	if(aux == NULL){
+		Coluna *new = criar_coluna(v[src]->value);
+		new->prev = aux;
+		aux->next = new;
 	}
-
-	while(aux->next != NULL && aux->value < ptr->value){
-		previous = aux;
-		aux = aux->next;
-	}
-
-	if(aux->next == NULL)
-		aux->next = copiar_no(ptr);
 	else{
-		ptr->next = previous->next;
-		previous->next = ptr;
+		while(aux->next != NULL && aux->value < v[src]->value)
+			aux = aux->next;
+		
+		if(aux->next == NULL){
+			Coluna *new = criar_coluna(v[src]->value);
+			new->prev = aux;
+			aux->next = new;
+		}
+		else{
+			Coluna *new = criar_coluna(v[src]->value);
+			new->prev = aux->prev;
+			new->next = aux;
+			new->prev->next = new;
+			new->next->prev = new;
+		}
 	}
 
-	return line;
+	return aux;
 }
 
-Item* copiar_no(Item *ptr){
-	Item *node = malloc(sizeof(Item));
-	node->value = ptr->value;
-	node->next = ptr->next;
+Coluna* criar_coluna(int value){
+	Coluna *node = malloc(sizeof(Coluna));
+	node->value = value;
+	node->prev = node->next = node->edge = NULL;
 
 	return node;
 }

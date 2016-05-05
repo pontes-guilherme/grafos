@@ -19,11 +19,13 @@ int main(){
 
     while(fgets(line, 1024, stream)){
         a = b = -1;
-        //char* tmp = strdup(line);
+
         sscanf(line, "%d,%d", &a, &b);
         printf("%d, %d\n", a, b);
-        //free(tmp);
+
     }
+    
+    fclose(stream);
 
     return 0;
 }
