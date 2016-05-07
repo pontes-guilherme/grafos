@@ -52,7 +52,7 @@ int main(){
 
 	criar_grafo(vetor_linhas);
 	quicksort(vetor_linhas, 0, elementos_vetor-1);
-	printf("CLique maximo: %d\n", clique_maximo(vetor_linhas));
+	printf("Clique maximo: %d\n", clique_maximo(vetor_linhas));
 
 	return 0;
 }
@@ -61,15 +61,15 @@ void criar_grafo(Linha* *v){
 	FILE* stream = fopen(FILENAME, "r");
     char line[50];
     int a, b;
-int i = 0;
+
     while(fgets(line, 50, stream)){
         a = b = -1;
         sscanf(line, "%d,%d", &a, &b);
-        if(a == 50 || b == 50) i++;
+
         if(a != -1 && b != -1)
         	inserir_aresta(v, a, b);
     }
-   printf("%d\n", i);
+
     fclose(stream);
 }
 
@@ -103,7 +103,7 @@ void inserir_aresta(Linha* *v, int a, int b){
 
 int encontrar_linha(Linha* *v, int value){
 	int posicao = encontrar_posicao(v, value);
-	
+
 	if(posicao  == -1)
 		inserir_linha(v, value, &posicao);
 
@@ -138,14 +138,18 @@ void inserir_linha(Linha* *v, int value, int *posicao){
 
 	if(elementos_vetor > 0){
 		if(value < v[0]->value){
-			for(i = elementos_vetor; i > 0; i--)
-				v[i+1] = v[i];
+				v[i] = v[i-1];
 
 			*posicao = 0;
 		}
-		else{
+		else if(value > v[elementos_vetor-1]->value){
 			*posicao = elementos_vetor;
 		}
+		else
+			for(i = elementos_vetor-1; value < v[i]->value; i--){
+				v[i+1] = v[i];
+				*posicao = i;
+			}
 	}
 	else
 		*posicao = 0;
@@ -155,35 +159,34 @@ void inserir_linha(Linha* *v, int value, int *posicao){
 }
 
 Coluna* inserir_coluna(Linha* *v, int dest, int src){  
-	if(v[dest]->edges == NULL){
-		v[dest]->edges = criar_coluna(v[src]);
+	Coluna *aux = v[dest]->edges;
 
-		return v[dest]->edges;
-	}
-	else{
-		Coluna *aux = v[dest]->edges;
-
-		while(aux->next != NULL && (aux->linha)->value < v[src]->value)
+	if(aux != NULL){
+		while(v[src]->value > aux->edge->linha->value && aux->next != NULL)
 			aux = aux->next;
-
-		if(aux->next == NULL){
-			Coluna *new = criar_coluna(v[src]);
-			new->prev = aux;
-			aux->next = new;
+		
+		if(v[src]->value == aux->edge->linha->value){
+			v[dest]->degree--;
+			return aux;
 		}
-		else{
-			Coluna *new = criar_coluna(v[src]);
+		
+		Coluna *new = criar_coluna(v[dest]);
+		new->prev = aux;
+		new->next = aux->next;
 
-			new->prev = aux->prev;
-			new->next = aux;
-			aux->prev = new;
+		if(new->next != NULL)
+			new->next->prev = new;
 
-			if(aux->prev != NULL)
-				aux->prev->next = new;
-			else
-				v[dest]->edges = new;
-		}
-
+		if(new->prev != NULL)
+			new->prev->next = new;
+		else
+			v[dest]->edges = new;
+		
+		return new;
+	}		
+	else{
+		aux = criar_coluna(v[dest]);
+		v[dest]->edges = aux;
 		return aux;
 	}
 }
@@ -209,7 +212,7 @@ int partition(Linha* *v, int p, int r, int q){
     pos = p;
 
     for(i = p; i < r; i++){
-        if (v[i] < v[r]){
+        if (v[i]->degree > v[r]->degree){
             swap(v, i, pos);
             pos++;
         }
@@ -221,16 +224,15 @@ int partition(Linha* *v, int p, int r, int q){
 void quicksort(Linha* *v, int p, int r){
     if (p < r){
 		int j = partition(v, p, r, (p+r)/2);
-		quicksort(v, p, j - 1);
-		quicksort(v, j + 1, p);
+		quicksort(v, p, j-1);
+		quicksort(v, j+1, r);
     }
 }
 
 int clique_maximo(Linha* *v){
 	int clique = elementos_vetor;
-	printf("tamanho do grafo: %d\n", elementos_vetor);
+
 	while(verificar_clique(v, clique) == 0 && clique > 1){
-		printf("clique: %d\n", clique);
 		remover_no(v, v[elementos_vetor-1]);
 		quicksort(v, 0, elementos_vetor);
 		clique = elementos_vetor;
@@ -251,10 +253,10 @@ int verificar_clique(Linha* *v, int clique){
 
 void remover_no(Linha* *v, Linha* no){
 	Coluna* aux = no->edges;
-	printf("%d %d %d\n", no->value, no->degree, aux->linha->value);		
+
 	while(aux != NULL){
 		remover_aresta(aux->edge);
-
+		
 		Coluna* tmp = aux;
 		aux = aux->next;
 
@@ -266,7 +268,6 @@ void remover_no(Linha* *v, Linha* no){
 }
 
 void remover_aresta(Coluna* edge){
-	if(edge == NULL)printf("??\n");
 	edge->linha->degree--;
 
 	if(edge->prev == NULL)
