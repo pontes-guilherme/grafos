@@ -2,8 +2,35 @@
  * @author: Leonardo de Assis / Guilherme Pontes
  * @date: 04/05/2016
  *
+ * Clique maximo: ideal / greedy
+ * 1 -> 11 / 11
+ * 2 -> 22 / 22
+ * 3 -> 4 / 3
+ * 4 -> 8 / 1
+ * 5 -> 13 / 11
+ * 6 -> 
+ * 7 -> 
+ * 8 -> 
+ * 9 -> 
+ * 10 -> 
+ * 11 -> 
+ * 12 -> 
+ * 13 -> 
+ * 14 -> 
+ * 15 -> 
+ * 16 -> 
+ * 17 -> 
+ * 18 -> 
+ * 19 -> 
+ * 20 -> 
+ * 21 -> 
+ * 22 -> 
+ * 23 -> 
+ * 24 -> 
+ * 25 -> 
+ *
  * Grafos:
- * 1.Airlines
+ * 1.Airlines.csv
  * 2.USAir.csv
  * 3.Codeminer.csv
  * 4.CpanAuthors.csv 
@@ -29,42 +56,12 @@
  * 24.p2p-Gnutella31.csv
  * 25.soc-Epinions1.csv         
  *
- * 
- * Clique maximo: ideal / greedy
- * 1 -> 11 / 11
- * 2 -> 22 / 21
- * 3 -> 4
- * 4 -> 8
- * 5 -> 13
- * 6 -> 
- * 7 -> 
- * 8 -> 
- * 9 -> 
- * 10 -> 
- * 11 -> 
- * 12 -> 
- * 13 -> 
- * 14 -> 
- * 15 -> 
- * 16 -> 
- * 17 -> 
- * 18 -> 
- * 19 -> 
- * 20 -> 
- * 21 -> 
- * 22 -> 
- * 23 -> 
- * 24 -> 
- * 25 -> 
- *
  **/
 
+#define FILENAME "GrafosOriginais/5.EuroSis.csv"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define FILENAME "GrafosOriginais/2.USAir.csv"
-
 
 int elementos_vetor;
 
@@ -120,8 +117,8 @@ void criar_grafo(Linha* *v){
     while(fgets(line, 50, stream)){
         a = b = -1;
         sscanf(line, "%d,%d", &a, &b);
-
-        if(a != -1 && b != -1)
+        //printf("%d %d \n", a, b);
+        if(a != b && a != -1 && b != -1)
         	inserir_aresta(v, a, b);
     }
 
@@ -145,6 +142,8 @@ int contar_linhas(){
 void inserir_aresta(Linha* *v, int a, int b){
 	a = encontrar_linha(v, a);
 	b = encontrar_linha(v, b);
+
+	if(a == b) a++;
 
 	Coluna *ptr_a = inserir_coluna(v, a, b);
 	Coluna *ptr_b = inserir_coluna(v, b, a);
@@ -179,7 +178,7 @@ int encontrar_posicao(Linha* *v, int value){
 		else
 			return i;
 	}
-	
+
 	return -1;
 }
 
@@ -193,8 +192,8 @@ void inserir_linha(Linha* *v, int value, int *posicao){
 
 	if(elementos_vetor > 0){
 		if(value < v[0]->value){
+			for(i = elementos_vetor; i > 0; i--)
 				v[i] = v[i-1];
-
 			*posicao = 0;
 		}
 		else if(value > v[elementos_vetor-1]->value){
@@ -215,7 +214,7 @@ void inserir_linha(Linha* *v, int value, int *posicao){
 
 Coluna* inserir_coluna(Linha* *v, int dest, int src){  
 	Coluna *aux = v[dest]->edges;
-
+	
 	if(aux != NULL){
 		while(v[src]->value > aux->edge->linha->value && aux->next != NULL)
 			aux = aux->next;
@@ -240,9 +239,8 @@ Coluna* inserir_coluna(Linha* *v, int dest, int src){
 		return new;
 	}		
 	else{
-		aux = criar_coluna(v[dest]);
-		v[dest]->edges = aux;
-		return aux;
+		v[dest]->edges = criar_coluna(v[dest]);
+		return v[dest]->edges;
 	}
 }
 
@@ -287,9 +285,9 @@ void quicksort(Linha* *v, int p, int r){
 int clique_maximo(Linha* *v){
 	int clique = elementos_vetor;
 
-	while(verificar_clique(v, clique) == 0 && clique > 1){
+	while(clique > 1 && verificar_clique(v, clique) == 0){
 		remover_no(v, v[elementos_vetor-1]);
-		quicksort(v, 0, elementos_vetor);
+		quicksort(v, 0, elementos_vetor-1);
 		clique = elementos_vetor;
 	}
 
