@@ -2,14 +2,69 @@
  * @author: Leonardo de Assis / Guilherme Pontes
  * @date: 04/05/2016
  *
+ * Grafos:
+ * 1.Airlines
+ * 2.USAir.csv
+ * 3.Codeminer.csv
+ * 4.CpanAuthors.csv 
+ * 5.EuroSis.csv
+ * 6.Oclinks.csv
+ * 7.YeastS.csv
+ * 8.CA-GrQc.csv
+ * 9.p2p-Gnutella08.csv
+ * 10.Wiki-Vote1.csv
+ * 11.p2p-Gnutella09.csv
+ * 12.p2p-Gnutella06.csv
+ * 13.p2p-Gnutella05.csv
+ * 14.CA-HepTh.csv 
+ * 15.p2p-Gnutella04.csv
+ * 16.CA-AstroPh.csv
+ * 17.p2p-Gnutella25.csv
+ * 18.CA-CondMat.csv 
+ * 19.p2p-Gnutella24.csv
+ * 20.Cit-HepTh.csv 
+ * 21.p2p-Gnutella30.csv
+ * 22.Email-Enron.csv
+ * 23.Brightkite_edges.csv
+ * 24.p2p-Gnutella31.csv
+ * 25.soc-Epinions1.csv         
+ *
  * 
- */
+ * Clique maximo: ideal / greedy
+ * 1 -> 11 / 11
+ * 2 -> 22 / 21
+ * 3 -> 4
+ * 4 -> 8
+ * 5 -> 13
+ * 6 -> 
+ * 7 -> 
+ * 8 -> 
+ * 9 -> 
+ * 10 -> 
+ * 11 -> 
+ * 12 -> 
+ * 13 -> 
+ * 14 -> 
+ * 15 -> 
+ * 16 -> 
+ * 17 -> 
+ * 18 -> 
+ * 19 -> 
+ * 20 -> 
+ * 21 -> 
+ * 22 -> 
+ * 23 -> 
+ * 24 -> 
+ * 25 -> 
+ *
+ **/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define FILENAME "GrafosOriginais/1.Airlines.csv"
+#define FILENAME "GrafosOriginais/2.USAir.csv"
+
 
 int elementos_vetor;
 
