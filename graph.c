@@ -23,9 +23,9 @@
  * 18 -> 26 / 26
  * 19 ->  4 /  2
  * 20 -> 23 / 20
- * 21 ->  4 /
- * 22 -> 20 /
- * 23 -> 37 /
+ * 21 ->  4 /  2 
+ * 22 -> 20 / 17
+ * 23 -> 37 / 37
  * 24 ->  4 /
  * 25 -> 23 /
  *
@@ -58,7 +58,7 @@
  *
  **/
 
-#define FILENAME "GrafosOriginais/17.p2p-Gnutella25.csv"
+#define FILENAME "GrafosOriginais/23.Brightkite_edges.csv"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -311,7 +311,7 @@ int clique_maximo(Linha* *v){
 	}*/
 
 	while(clique > 1 && verificar_clique(v, clique) == 0){
-		//printf("%d\n", clique);
+		printf("%d\n", clique);
 		remover_no(v, v[elementos_vetor-1]);
 		quicksort(v, 0, elementos_vetor-1);
 		clique = elementos_vetor;
