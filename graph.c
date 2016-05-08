@@ -2,38 +2,38 @@
  * @author: Leonardo de Assis / Guilherme Pontes
  * @date: 04/05/2016
  *
- * Clique maximo: ideal / greedy
- * 1 -> 11 / 11
- * 2 -> 22 / 22
- * 3 -> 4 / 3
- * 4 -> 8 / 1
- * 5 -> 13 / 11
- * 6 -> 
- * 7 -> 
- * 8 -> 
- * 9 -> 
- * 10 -> 
- * 11 -> 
- * 12 -> 
- * 13 -> 
- * 14 -> 
- * 15 -> 
- * 16 -> 
- * 17 -> 
- * 18 -> 
- * 19 -> 
- * 20 -> 
- * 21 -> 
- * 22 -> 
- * 23 -> 
- * 24 -> 
- * 25 -> 
+ * Clique maximo: sage / greedy
+ *  1 -> 11 / 11
+ *  2 -> 22 / 22
+ *  3 ->  4 /  3
+ *  4 ->  8 /  6
+ *  5 -> 13 / 11
+ *  6 ->  7 /  5
+ *  7 ->  9 /  9
+ *  8 -> 44 / 44
+ *  9 ->  5 /  4
+ * 10 ->  3 /  2
+ * 11 ->  5 /  4
+ * 12 ->  4 /  3
+ * 13 ->  4 /  4
+ * 14 -> 32 / 32
+ * 15 ->  4 /  2
+ * 16 -> 57 /
+ * 17 ->  4 /
+ * 18 -> 26 /
+ * 19 ->  4 /
+ * 20 -> 23 /
+ * 21 ->  4 /
+ * 22 -> 20 /
+ * 23 -> 37 /
+ * 24 ->  4 /
+ * 25 -> 23 /
  *
  * Grafos:
  * 1.Airlines.csv
  * 2.USAir.csv
  * 3.Codeminer.csv
- * 4.CpanAuthors.csv 
+ * 4.CpanAuthors.csv
  * 5.EuroSis.csv
  * 6.Oclinks.csv
  * 7.YeastS.csv
@@ -43,22 +43,22 @@
  * 11.p2p-Gnutella09.csv
  * 12.p2p-Gnutella06.csv
  * 13.p2p-Gnutella05.csv
- * 14.CA-HepTh.csv 
+ * 14.CA-HepTh.csv
  * 15.p2p-Gnutella04.csv
  * 16.CA-AstroPh.csv
  * 17.p2p-Gnutella25.csv
- * 18.CA-CondMat.csv 
+ * 18.CA-CondMat.csv
  * 19.p2p-Gnutella24.csv
- * 20.Cit-HepTh.csv 
+ * 20.Cit-HepTh.csv
  * 21.p2p-Gnutella30.csv
  * 22.Email-Enron.csv
  * 23.Brightkite_edges.csv
  * 24.p2p-Gnutella31.csv
- * 25.soc-Epinions1.csv         
+ * 25.soc-Epinions1.csv
  *
  **/
 
-#define FILENAME "GrafosOriginais/5.EuroSis.csv"
+#define FILENAME "GrafosOriginais/25.soc-Epinions1.csv"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -99,12 +99,13 @@ int main(){
 	
 	int tam_vetor = contar_linhas() * 2;
 
-	Linha* *vetor_linhas = malloc(sizeof(Linha)*tam_vetor);
+	Linha* *v = malloc(sizeof(Linha)*tam_vetor);
 	elementos_vetor = 0;
 
-	criar_grafo(vetor_linhas);
-	quicksort(vetor_linhas, 0, elementos_vetor-1);
-	printf("Clique maximo: %d\n", clique_maximo(vetor_linhas));
+	criar_grafo(v);
+	quicksort(v, 0, elementos_vetor-1);
+	printf("Clique maximo: %d\n", clique_maximo(v));
+	free(v);
 
 	return 0;
 }
@@ -153,6 +154,7 @@ void inserir_aresta(Linha* *v, int a, int b){
 
 	v[a]->degree++;
 	v[b]->degree++;
+
 }
 
 int encontrar_linha(Linha* *v, int value){
@@ -223,20 +225,35 @@ Coluna* inserir_coluna(Linha* *v, int dest, int src){
 			v[dest]->degree--;
 			return aux;
 		}
-		
-		Coluna *new = criar_coluna(v[dest]);
-		new->prev = aux;
-		new->next = aux->next;
+		else if(v[src]->value < aux->edge->linha->value){
+			Coluna *new = criar_coluna(v[dest]);
+			new->prev = aux->prev;
+			new->next = aux;
+			aux->prev = new;
 
-		if(new->next != NULL)
-			new->next->prev = new;
+			if(new->prev != NULL)
+				new->prev->next = new;
+			else
+				v[dest]->edges = new;
 
-		if(new->prev != NULL)
-			new->prev->next = new;
-		else
-			v[dest]->edges = new;
+			return new;
+		}
+		else{
+			Coluna *new = criar_coluna(v[dest]);
+			new->prev = aux;
+			new->next = aux->next;
+
+			if(new->next != NULL)
+				new->next->prev = new;
+
+			if(new->prev != NULL)
+				new->prev->next = new;
+			else
+				v[dest]->edges = new;
+
+			return new;
+		}
 		
-		return new;
 	}		
 	else{
 		v[dest]->edges = criar_coluna(v[dest]);
@@ -285,8 +302,19 @@ void quicksort(Linha* *v, int p, int r){
 int clique_maximo(Linha* *v){
 	int clique = elementos_vetor;
 
+	/*int i;
+	for(i = 0; i < elementos_vetor; i++){
+		printf("\n\n%d - %d: ", v[i]->value, v[i]->degree);
+		Coluna *aux = v[i]->edges;
+		while(aux != NULL){
+			printf("%d ", aux->edge->linha->value);
+			aux = aux->next;
+		}
+	}*/
+
 	while(clique > 1 && verificar_clique(v, clique) == 0){
 		remover_no(v, v[elementos_vetor-1]);
+
 		quicksort(v, 0, elementos_vetor-1);
 		clique = elementos_vetor;
 	}
