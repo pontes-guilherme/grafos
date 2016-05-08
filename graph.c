@@ -18,11 +18,11 @@
  * 13 ->  4 /  4
  * 14 -> 32 / 32
  * 15 ->  4 /  2
- * 16 -> 57 /
- * 17 ->  4 /
- * 18 -> 26 /
- * 19 ->  4 /
- * 20 -> 23 /
+ * 16 -> 57 / 57
+ * 17 ->  4 /  2
+ * 18 -> 26 / 26
+ * 19 ->  4 /  2
+ * 20 -> 23 / 20
  * 21 ->  4 /
  * 22 -> 20 /
  * 23 -> 37 /
@@ -58,7 +58,7 @@
  *
  **/
 
-#define FILENAME "GrafosOriginais/25.soc-Epinions1.csv"
+#define FILENAME "GrafosOriginais/17.p2p-Gnutella25.csv"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -131,9 +131,8 @@ int contar_linhas(){
     char line[50];
     int linhas = 0;
 
-    while(fgets(line, 50, stream)){
+    while(fgets(line, 50, stream))
     	linhas++;
-    }
 
     fclose(stream);
 
@@ -144,7 +143,7 @@ void inserir_aresta(Linha* *v, int a, int b){
 	a = encontrar_linha(v, a);
 	b = encontrar_linha(v, b);
 
-	if(a == b) a++;
+	if(a == b) ++a;
 
 	Coluna *ptr_a = inserir_coluna(v, a, b);
 	Coluna *ptr_b = inserir_coluna(v, b, a);
@@ -198,9 +197,8 @@ void inserir_linha(Linha* *v, int value, int *posicao){
 				v[i] = v[i-1];
 			*posicao = 0;
 		}
-		else if(value > v[elementos_vetor-1]->value){
+		else if(value > v[elementos_vetor-1]->value)
 			*posicao = elementos_vetor;
-		}
 		else
 			for(i = elementos_vetor-1; value < v[i]->value; i--){
 				v[i+1] = v[i];
@@ -211,7 +209,7 @@ void inserir_linha(Linha* *v, int value, int *posicao){
 		*posicao = 0;
 
 	v[*posicao] = node;
-	elementos_vetor++;	
+	++elementos_vetor;	
 }
 
 Coluna* inserir_coluna(Linha* *v, int dest, int src){  
@@ -253,7 +251,6 @@ Coluna* inserir_coluna(Linha* *v, int dest, int src){
 
 			return new;
 		}
-		
 	}		
 	else{
 		v[dest]->edges = criar_coluna(v[dest]);
@@ -288,6 +285,7 @@ int partition(Linha* *v, int p, int r, int q){
         }
     }
     swap(v, r, pos);
+
     return pos;
 }
 
@@ -313,8 +311,8 @@ int clique_maximo(Linha* *v){
 	}*/
 
 	while(clique > 1 && verificar_clique(v, clique) == 0){
+		//printf("%d\n", clique);
 		remover_no(v, v[elementos_vetor-1]);
-
 		quicksort(v, 0, elementos_vetor-1);
 		clique = elementos_vetor;
 	}
